@@ -52,9 +52,15 @@ class Graph:
         raise ValueError("No such item in the collection")
 
     def dijkstra_algorithm(self, start_node=0, aim=None):
-
-        start_node = self.find(start_node.value)
-        aim = self.find(aim.value)
+        
+        try:
+            start_node = self.find(start_node.value)
+        except AttributeError:
+            start_node = self.vertices[start_node]
+        try:
+            aim = self.find(aim.value)
+        except AttributeError:
+            aim = self.vertices[aim]
 
         unvisited_set = [node for node in self.vertices]
         try:
@@ -165,7 +171,21 @@ class Graph:
                     self.vertices.append(Node(input_[0]))
                 g.edge(current_node, self.find(input_[0]), int(input_[1]))
 
+    @classmethod
+    def create_from_connections(cls, connections, default_value = 1):
+        g = cls()
+        
+        for pair in connections:
+            if Node(pair[0]) not in g.vertices:
+                g.vertices.append(Node(pair[0]))
+            if Node(pair[1]) not in g.vertices:
+                g.vertices.append(Node(pair[1]))
+            g.edge(g.find(pair[0]), g.find(pair[1]), default_value)
+        
+        return g
+
 if __debug__ and __name__ == "__main__":
+    
     # ASSERTS
 
     g = Graph()
@@ -178,3 +198,5 @@ if __debug__ and __name__ == "__main__":
 
     assert in_collection(g.vertices, Node('1'))[0]
     assert g.dijkstra_algorithm(Node('1'), Node('6'))[1] == 12
+
+    g.show('g')
