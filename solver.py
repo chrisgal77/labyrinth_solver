@@ -1,38 +1,44 @@
 from graph import Graph
+from graph import Node
 from point_searcher import PointsSearcher
+from numpy import sqrt
 
 class LabyrinthSolver:
     def __init__(self):
         pass
 
-    def take_labyrinth(self, filename='image.png', starting_point=(0,0)):
+    def take_labyrinth(self, filename, point):
 
-        pts = PointsSearcher()
-        pts.init(filename, starting_point=starting_point)
-        self.path = pts.take_path()
+        self.pts = PointsSearcher()
+        self.pts.init(filename)
+        self.pts.set_starting_point(point)
 
-    def solve(self):
+    def optimize_path(self):
+        pass #TODO
 
-        # points = []
-        # for i, point in enumerate(self.path):
-        #     if point[0] not in points:
-        #         points.append(point[0])
-        #     if i == len(self.path) - 1:
-        #         points.append(point[1])
+        
+    def find_closest(self, aim):
+        closest = [None, 100000] # point, distance
+        for connection in self.path:
+            for point in connection:
+                distance = sqrt((point[0] - aim[0]) ** 2 + (point[1] - aim[1]))
+                if distance <= closest[1]:
+                    closest = [point, distance]
+        return closest[0]
 
-        # identity = {}
-        # for i, point in enumerate(points):
-        #     identity.update({(point[0], point[1]) : i})
-        # for i, points in enumerate(self.path):
-        #     for j, point in enumerate(points):
-        #         to_change = (point[0], point[1])
-        #         self.path[i][j] = identity[to_change]
+    def solve(self, start, aim):
+
+        self.path = self.pts.get_path()
+        end = self.find_closest(aim)
+        start = self.find_closest(start)
         print(self.path)
+
         g = Graph.create_from_connections(self.path)
-        print(g.dijkstra_algorithm(0,17)[0])
+        print(g.dijkstra_algorithm(Node(start),Node(end))[0])
+        return g.dijkstra_algorithm(Node(start),Node(end))[0]
 
 if __debug__ and __name__ == "__main__":
     
     slr = LabyrinthSolver()
     slr.take_labyrinth('image.png', (980,380))
-    slr.solve()
+    slr.solve((980,380),(40,40))

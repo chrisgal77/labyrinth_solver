@@ -142,7 +142,7 @@ class Graph:
             current_node = path[max(idx)]
             shortest_path.append(current_node)
         
-        return path, result
+        return shortest_path, result
 
     def show(self, filename='graph'):
 

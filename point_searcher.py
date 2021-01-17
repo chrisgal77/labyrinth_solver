@@ -1,25 +1,25 @@
 import cv2
 import numpy as np
 import imutils
-from image_reader import ImageReader
 import os 
 from copy import copy
-import time
-import pygame
+from random import randint
 
 class PointsSearcher:
     def __init__(self):
         pass
 
-    def init(self, image_name='image.png', starting_point = (100,100)):
+    def init(self, image_name='image.png'):
         
-        self.starting_point = starting_point
         if os.path.isfile(os.path.dirname(__file__) + '/' + image_name):
-            self.image = cv2.imread(image_name)
+            self.image = cv2.imread(os.path.dirname(__file__) + '/' + image_name)
         else:
             raise IOError("No such file")
 
-    def take_path(self, step=30):
+    def set_starting_point(self, point):
+        self.starting_point = point
+
+    def get_path(self, step=22):
         
         self.distances = {
             'right' : step,
@@ -50,7 +50,6 @@ class PointsSearcher:
         def set_possibilities(point, exclude=None):
             
             directions = []
-            
             photo = copy(self.image)
             hsv_frame = cv2.cvtColor(photo, cv2.COLOR_BGR2HSV)
             lower = np.array((0,0,0), dtype = "uint8")
@@ -61,7 +60,7 @@ class PointsSearcher:
             for way in ['right','left']:
                 if point[0] + self.distances[way] < len(self.image[0]) and point[0] + self.distances[way] > 0:
                     frameBoolean = np.zeros((len(self.image),len(self.image[0]),3),dtype = "uint8")
-                    frameBoolean = cv2.circle(copy(frameBoolean),(point[0] + self.distances[way], point[1]), 10,(255,255,255),-1)
+                    frameBoolean = cv2.circle(copy(frameBoolean),(point[0] + self.distances[way], point[1]), 4,(255,255,255),-1)
                     thresh = cv2.threshold(copy(frameBoolean),200,255,cv2.THRESH_BINARY)[1]
                     thresh = cv2.bitwise_and(thresh,thresh,mask=mask)
                     thresh = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
@@ -75,7 +74,7 @@ class PointsSearcher:
             for way in ['up','down']:
                 if point[1] + self.distances[way] > 0 and point[1] + self.distances[way] < len(self.image):
                     frameBoolean = np.zeros((len(self.image),len(self.image[0]),3),dtype = "uint8")
-                    frameBoolean = cv2.circle(copy(frameBoolean),(point[0], point[1] + self.distances[way]),10,(255,255,255),-1)
+                    frameBoolean = cv2.circle(copy(frameBoolean),(point[0], point[1] + self.distances[way]),4,(255,255,255),-1)
                     thresh = cv2.threshold(copy(frameBoolean),200,255,cv2.THRESH_BINARY)[1]
                     thresh = cv2.bitwise_and(thresh,thresh,mask=mask)
                     thresh = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
@@ -92,29 +91,15 @@ class PointsSearcher:
 
             return directions
 
-
         self.points = [[self.starting_point, set_possibilities(self.starting_point)]]
         self.connections = []
-
-
-
-        (width, height) = (1000, 600)
-        screen = pygame.display.set_mode((width, height))
-        background_colour = (255,255,255)
-        screen.fill(background_colour)
-
-
-
 
         while is_move_possibility():
             try:
                 current = search_point_with_move_possibility()
             except RuntimeError:
                 break
-            time.sleep(0.1)
-            pygame.draw.circle(screen,(0,0,0), current[0], 15)
-            pygame.display.flip()
-            print(current)
+
             for i, direct in enumerate(current[1]):
                 point = ()
                 if direct == 'up' or direct == 'down':
@@ -131,7 +116,8 @@ class PointsSearcher:
 if __debug__ and __name__ == "__main__":
 
     pts = PointsSearcher()
-    pts.init('image.png', starting_point=(980,380))
-    pts.start()
+    pts.init('image.png')
+    pts.set_starting_point((990,445))
+    print(pts.get_path())
 
         
