@@ -80,16 +80,19 @@ class Graph:
         while current_node[0] != aim:
             tentative_nodes = []
             addition = None
-            for connection in current_node[0].connections:
-                if in_collection(unvisited_set, connection[0])[0]:
-                    if unvisited_set[in_collection(unvisited_set, connection[0])[1]][1] < current_node[1]:
-                        temp = [connection[0], unvisited_set[in_collection(unvisited_set, connection[0])[1]][1]]
-                        unvisited_set[in_collection(unvisited_set, connection[0])[1]] = temp
-                        addition = temp
-                    else:
-                        temp = [connection[0], current_node[1] + connection[1]]
-                        unvisited_set[in_collection(unvisited_set, connection[0])[1]] = temp
-                        tentative_nodes.append(temp)
+            try:
+                for connection in current_node[0].connections:
+                    if in_collection(unvisited_set, connection[0])[0]:
+                        if unvisited_set[in_collection(unvisited_set, connection[0])[1]][1] < current_node[1]:
+                            temp = [connection[0], unvisited_set[in_collection(unvisited_set, connection[0])[1]][1]]
+                            unvisited_set[in_collection(unvisited_set, connection[0])[1]] = temp
+                            addition = temp
+                        else:
+                            temp = [connection[0], current_node[1] + connection[1]]
+                            unvisited_set[in_collection(unvisited_set, connection[0])[1]] = temp
+                            tentative_nodes.append(temp)
+            except:
+                pass
 
             def find_min(collection):
                 min_ = [None, 10000001]

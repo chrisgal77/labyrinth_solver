@@ -8,8 +8,8 @@ class GUI:
 
     def main(self):
 
-        self.solver.take_labyrinth('image.png', (990,445))
-        background = pygame.image.load('/home/gal/Documents/Projects/labyrinth_solver/image.png')
+        self.solver.take_labyrinth('lab.png', (980,480))
+        background = pygame.image.load('/home/gal/Documents/Projects/labyrinth_solver/lab.png')
         backgroundrect = background.get_rect()
 
         running = True
@@ -22,6 +22,7 @@ class GUI:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse = pygame.mouse.get_pos()
+                    print(mouse)
                     if len(points) < 2:
                         points.append(mouse)
                 if len(points) == 2 and not taken:
@@ -31,7 +32,7 @@ class GUI:
             self.screen.blit(background, backgroundrect)
             if taken:
                 for point in poinst_to_draw:
-                    pygame.draw.circle(self.screen, (0,0,0), (int(point.value[0]), int(point.value[1])), 10)
+                    pygame.draw.circle(self.screen, (0,0,0), (int(point.value[0])-5, int(point.value[1])-5), 10)
             pygame.display.flip()
             
 

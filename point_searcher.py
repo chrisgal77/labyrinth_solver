@@ -4,6 +4,7 @@ import imutils
 import os 
 from copy import copy
 from random import randint
+import time
 
 class PointsSearcher:
     def __init__(self):
@@ -19,7 +20,7 @@ class PointsSearcher:
     def set_starting_point(self, point):
         self.starting_point = point
 
-    def get_path(self, step=22):
+    def get_path(self, step=20):
         
         self.distances = {
             'right' : step,
@@ -99,15 +100,16 @@ class PointsSearcher:
                 current = search_point_with_move_possibility()
             except RuntimeError:
                 break
-
             for i, direct in enumerate(current[1]):
                 point = ()
                 if direct == 'up' or direct == 'down':
                     point = (current[0][0], current[0][1] + self.distances[direct])
                     self.points.append([point, set_possibilities(point, self.opposite[direct])])
+                    print(self.points[len(self.points)-1])
                 elif direct == 'left' or direct == 'right':
                     point = (current[0][0] + self.distances[direct], current[0][1])
                     self.points.append([point, set_possibilities(point, self.opposite[direct])])
+                    print(self.points[len(self.points)-1])
                 current[1].pop(i)
                 self.connections.append([current[0], point])
 
