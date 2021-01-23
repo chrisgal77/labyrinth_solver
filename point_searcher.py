@@ -3,7 +3,7 @@ import numpy as np
 import imutils
 import os 
 from copy import copy
-from random import randint
+from random import randint, choice
 import time
 
 class PointsSearcher:
@@ -42,11 +42,19 @@ class PointsSearcher:
                     return True
             return False
 
-        def search_point_with_move_possibility():
+        def search_point_with_move_possibility(priority=None):
             for i, point in enumerate(self.points):
                 if point[1]:
                     return self.points[i]
             raise RuntimeError('No such point')
+
+        def set_point(direct):
+            if direct == 'up' or direct == 'down':
+                point = (current[0][0], current[0][1] + self.distances[direct])
+                return [point, set_possibilities(point, self.opposite[direct])]
+            elif direct == 'left' or direct == 'right':
+                point = (current[0][0] + self.distances[direct], current[0][1])
+                return [point, set_possibilities(point, self.opposite[direct])]
 
         def set_possibilities(point, exclude=None):
             
@@ -95,31 +103,79 @@ class PointsSearcher:
         self.points = [[self.starting_point, set_possibilities(self.starting_point)]]
         self.connections = []
 
+        current = self.points[0]
+        checkpoint = self.points[0]
+        direction = 'left'
+        #TO_OPTIMIZE
         while is_move_possibility():
-            try:
-                current = search_point_with_move_possibility()
-            except RuntimeError:
-                break
-            for i, direct in enumerate(current[1]):
-                point = ()
-                if direct == 'up' or direct == 'down':
-                    point = (current[0][0], current[0][1] + self.distances[direct])
-                    self.points.append([point, set_possibilities(point, self.opposite[direct])])
-                    print(self.points[len(self.points)-1])
-                elif direct == 'left' or direct == 'right':
-                    point = (current[0][0] + self.distances[direct], current[0][1])
-                    self.points.append([point, set_possibilities(point, self.opposite[direct])])
-                    print(self.points[len(self.points)-1])
-                current[1].pop(i)
-                self.connections.append([current[0], point])
+            
+            if not current[1]:
+                self.connections.append([checkpoint[0], current[0]])
+                current = checkpoint
+                
+            elif len(current[1]) == 1 and direction in current[1]:
+                current = set_point(direction)
+                
+                
+            elif len(current[1]) == 1 and direction not in current[1]:
+                self.connections.append([checkpoint[0], current[0]])
+                checkpoint = current
+                try:
+                    checkpoint[1].remove(direction)
+                except ValueError:
+                    pass
+                direction = choice(checkpoint[1])
+                current = set_point(direction)
+            
+            elif len(current[1]) > 1 and direction in current[1]:
+                self.connections.append([checkpoint[0], current[0]])
+                checkpoint = current
+                try:
+                    checkpoint[1].remove(direction)
+                except ValueError:
+                    pass
+                current = set_point(direction)
+                
+            else:
+                self.connections.append([checkpoint[0], current[0]])
+                checkpoint = current
+                try:
+                    checkpoint[1].remove(direction)
+                except ValueError:
+                    pass
+                direction = choice(checkpoint[1])
+                current = set_point(direction)
+            time.sleep(0.5)
+            print(current[0])
+                
+                    
+            
+            
+            
+            # try:
+            #     current = search_point_with_move_possibility()
+            # except RuntimeError:
+            #     break
+            # for i, direct in enumerate(current[1]):
+            #     point = ()
+            #     if direct == 'up' or direct == 'down':
+            #         point = (current[0][0], current[0][1] + self.distances[direct])
+            #         self.points.append([point, set_possibilities(point, self.opposite[direct])])
+            #         print(self.points[len(self.points)-1])
+            #     elif direct == 'left' or direct == 'right':
+            #         point = (current[0][0] + self.distances[direct], current[0][1])
+            #         self.points.append([point, set_possibilities(point, self.opposite[direct])])
+            #         print(self.points[len(self.points)-1])
+            #     current[1].pop(i)
+            #     self.connections.append([current[0], point])
 
         return self.connections
 
 if __debug__ and __name__ == "__main__":
 
     pts = PointsSearcher()
-    pts.init('image.png')
-    pts.set_starting_point((990,445))
+    pts.init('lab.png')
+    pts.set_starting_point((980,480))
     print(pts.get_path())
 
         
