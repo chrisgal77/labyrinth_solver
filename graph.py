@@ -101,7 +101,10 @@ class Graph:
                         min_ = [node, value]
                 return min_
 
-            unvisited_set.remove(current_node)
+            try:
+                unvisited_set.remove(current_node)
+            except:
+                break
 
             if addition:
                 tentative_nodes.append(addition)
@@ -119,35 +122,35 @@ class Graph:
         
         #TO_OPTIMIZE
 
-        # new_list = [item for item in unvisited_set if item[1] < 10000000]
-        # try:
-        #     del new_list[len(new_list) - 1]
+        new_list = [item for item in unvisited_set if item[1] < 10000000]
+        try:
+            del new_list[len(new_list) - 1]
 
-        #     path_correction = None
-        #     for node in new_list:
-        #         temp_path, temp_distance = self.dijkstra_algorithm(self.find(node[0]), aim)
-        #         temp_distance += node[1]
-        #         if temp_distance < result:
-        #             result = temp_distance
-        #             path_correction = temp_path
-        #     try:
-        #         path += path_correction
-        #     except:
-        #         pass
-        # except IndexError:
-        #     pass
+            path_correction = None
+            for node in new_list:
+                temp_path, temp_distance = self.dijkstra_algorithm(self.find(node[0]), aim)
+                temp_distance += node[1]
+                if temp_distance < result:
+                    result = temp_distance
+                    path_correction = temp_path
+            try:
+                path += path_correction
+            except:
+                pass
+        except IndexError:
+            pass
 
-        # shortest_path = [path[0]]
-        # current_node = path[0]
-        # while current_node != path[len(path)-1]:
-        #     idx = []
-        #     for to_compare in current_node.connections:
-        #         if to_compare[0] in path:
-        #             idx.append(path.index(to_compare[0]))
-        #     current_node = path[max(idx)]
-        #     shortest_path.append(current_node)
+        shortest_path = [path[0]]
+        current_node = path[0]
+        while current_node != path[len(path)-1]:
+            idx = []
+            for to_compare in current_node.connections:
+                if to_compare[0] in path:
+                    idx.append(path.index(to_compare[0]))
+            current_node = path[max(idx)]
+            shortest_path.append(current_node)
         
-        return path, result
+        return shortest_path, result
 
     def show(self, filename='graph'):
 

@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import imutils
 import os 
-from copy import copy
+from copy import copy, deepcopy
 from random import randint, choice
 import time
 
@@ -37,23 +37,37 @@ class PointsSearcher:
         }
 
         def is_move_possibility():
-            for point in self.points:
-                if point[1] != 0:
+            for point in self.checkpoints:
+                if point[1]:
+                    return True
+            if self.current[1]:
+                return True
+            return False
+
+        def in_collection(collection, item):
+            for element in collection:
+                if item[0] == element[0]:
                     return True
             return False
 
-        def search_point_with_move_possibility(priority=None):
-            for i, point in enumerate(self.points):
+        def search_point_with_move_possibility(collection, priority=None):
+            for i, point in enumerate(collection):
                 if point[1]:
-                    return self.points[i]
+                    return collection[i]
             raise RuntimeError('No such point')
+
+        def exchange(collection, item):
+            for i, element in enumerate(collection):
+                if item[0] == element[0]:
+                    collection[i] = item
+                    break
 
         def set_point(direct):
             if direct == 'up' or direct == 'down':
-                point = (current[0][0], current[0][1] + self.distances[direct])
+                point = (self.current[0][0], self.current[0][1] + self.distances[direct])
                 return [point, set_possibilities(point, self.opposite[direct])]
             elif direct == 'left' or direct == 'right':
-                point = (current[0][0] + self.distances[direct], current[0][1])
+                point = (self.current[0][0] + self.distances[direct], self.current[0][1])
                 return [point, set_possibilities(point, self.opposite[direct])]
 
         def set_possibilities(point, exclude=None):
@@ -100,81 +114,89 @@ class PointsSearcher:
 
             return directions
 
-        self.points = [[self.starting_point, set_possibilities(self.starting_point)]]
         self.connections = []
 
-        current = self.points[0]
-        checkpoint = self.points[0]
+        self.current = [self.starting_point, set_possibilities(self.starting_point)]
+        self.checkpoints = []
+        checkpoint = deepcopy(self.current)
+        
         direction = 'left'
+        checkpoint[1].remove(direction)
+        self.checkpoints.append(checkpoint)
         #TO_OPTIMIZE
         while is_move_possibility():
             
-            if not current[1]:
-                self.connections.append([checkpoint[0], current[0]])
-                current = checkpoint
-                
-            elif len(current[1]) == 1 and direction in current[1]:
-                current = set_point(direction)
-                
-                
-            elif len(current[1]) == 1 and direction not in current[1]:
-                self.connections.append([checkpoint[0], current[0]])
-                checkpoint = current
+            if not self.current[1]:
+                self.connections.append([checkpoint[0], self.current[0]])
                 try:
-                    checkpoint[1].remove(direction)
-                except ValueError:
-                    pass
+                    self.current = search_point_with_move_possibility(self.checkpoints)
+                except RuntimeError:
+                    break
+                checkpoint = self.current
+                
+            elif len(self.current[1]) == 1 and direction in self.current[1]:
+                self.current = set_point(direction)
+                
+                
+            elif len(self.current[1]) == 1 and direction not in self.current[1]:
+                self.connections.append([checkpoint[0], self.current[0]])
+                checkpoint = deepcopy(self.current)
                 direction = choice(checkpoint[1])
-                current = set_point(direction)
-            
-            elif len(current[1]) > 1 and direction in current[1]:
-                self.connections.append([checkpoint[0], current[0]])
-                checkpoint = current
                 try:
                     checkpoint[1].remove(direction)
                 except ValueError:
                     pass
-                current = set_point(direction)
+                if not in_collection(self.checkpoints, checkpoint):
+                    self.checkpoints.append(checkpoint)
+                else:
+                    exchange(self.checkpoints, checkpoint)
+                
+                self.current = set_point(direction)
+            
+            elif len(self.current[1]) > 1 and direction in self.current[1]:
+                self.connections.append([checkpoint[0], self.current[0]])
+                checkpoint = deepcopy(self.current)
+                try:
+                    checkpoint[1].remove(direction)
+                except ValueError:
+                    pass
+                if not in_collection(self.checkpoints, checkpoint):
+                    self.checkpoints.append(checkpoint)
+                else:
+                    exchange(self.checkpoints, checkpoint)
+                self.current = set_point(direction)
                 
             else:
-                self.connections.append([checkpoint[0], current[0]])
-                checkpoint = current
+                self.connections.append([checkpoint[0], self.current[0]])
+                checkpoint = deepcopy(self.current)
+                direction = choice(checkpoint[1])
                 try:
                     checkpoint[1].remove(direction)
                 except ValueError:
                     pass
-                direction = choice(checkpoint[1])
-                current = set_point(direction)
-            time.sleep(0.5)
-            print(current[0])
-                
-                    
-            
-            
-            
-            # try:
-            #     current = search_point_with_move_possibility()
-            # except RuntimeError:
-            #     break
-            # for i, direct in enumerate(current[1]):
-            #     point = ()
-            #     if direct == 'up' or direct == 'down':
-            #         point = (current[0][0], current[0][1] + self.distances[direct])
-            #         self.points.append([point, set_possibilities(point, self.opposite[direct])])
-            #         print(self.points[len(self.points)-1])
-            #     elif direct == 'left' or direct == 'right':
-            #         point = (current[0][0] + self.distances[direct], current[0][1])
-            #         self.points.append([point, set_possibilities(point, self.opposite[direct])])
-            #         print(self.points[len(self.points)-1])
-            #     current[1].pop(i)
-            #     self.connections.append([current[0], point])
+                if not in_collection(self.checkpoints, checkpoint):
+                    self.checkpoints.append(checkpoint)
+                else:
+                    exchange(self.checkpoints, checkpoint)
+                self.current = set_point(direction)
+
+            time.sleep(0.1)
+            print(self.current)
+
+        to_del = []
+        for i, connection in enumerate(self.connections):
+            if connection[0] == connection[1]:
+                to_del.append(i)
+
+        for i in reversed(to_del):
+            self.connections.pop(i)
 
         return self.connections
 
 if __debug__ and __name__ == "__main__":
 
     pts = PointsSearcher()
-    pts.init('lab.png')
+    pts.init('lab1.png')
     pts.set_starting_point((980,480))
     print(pts.get_path())
 
