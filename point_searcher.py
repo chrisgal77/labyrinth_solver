@@ -22,6 +22,8 @@ class PointsSearcher:
 
     def get_path(self, step=20):
         
+        print("Processing...")
+
         self.distances = {
             'right' : step,
             'left' : -step,
@@ -180,9 +182,6 @@ class PointsSearcher:
                     exchange(self.checkpoints, checkpoint)
                 self.current = set_point(direction)
 
-            time.sleep(0.1)
-            print(self.current)
-
         to_del = []
         for i, connection in enumerate(self.connections):
             if connection[0] == connection[1]:
@@ -190,6 +189,8 @@ class PointsSearcher:
 
         for i in reversed(to_del):
             self.connections.pop(i)
+
+        print("Path taken.")
 
         return self.connections
 
@@ -199,5 +200,4 @@ if __debug__ and __name__ == "__main__":
     pts.init('lab1.png')
     pts.set_starting_point((980,480))
     print(pts.get_path())
-
         

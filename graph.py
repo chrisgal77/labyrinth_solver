@@ -18,6 +18,7 @@ class Node:
 
     def edge(self, other, edge_value=0):
         self.connections.append([other,edge_value])
+        other.connections.append([self,edge_value])
 
     def __eq__(self, other):
         try:
@@ -52,7 +53,6 @@ class Graph:
         raise ValueError("No such item in the collection")
 
     def dijkstra_algorithm(self, start_node=0, aim=None):
-        
         try:
             start_node = self.find(start_node.value)
         except AttributeError:
@@ -75,8 +75,8 @@ class Graph:
                 unvisited_set[i] = [node, 0]
 
         current_node = [current_node, 0]
+        path = []
 
-        path = [current_node[0]]
         while current_node[0] != aim:
             tentative_nodes = []
             addition = None
@@ -103,6 +103,7 @@ class Graph:
 
             try:
                 unvisited_set.remove(current_node)
+                path.append(current_node)
             except:
                 break
 
@@ -114,43 +115,16 @@ class Graph:
 
             if current_node[0] == None:
                 current_node = find_min(unvisited_set)
-
-            path.append(current_node[0])
-
         
-        result = current_node[1]
-        
-        #TO_OPTIMIZE
+        return current_node[1]
 
-        new_list = [item for item in unvisited_set if item[1] < 10000000]
-        try:
-            del new_list[len(new_list) - 1]
+    def DFS(self, start_node, aim):
+        pass
 
-            path_correction = None
-            for node in new_list:
-                temp_path, temp_distance = self.dijkstra_algorithm(self.find(node[0]), aim)
-                temp_distance += node[1]
-                if temp_distance < result:
-                    result = temp_distance
-                    path_correction = temp_path
-            try:
-                path += path_correction
-            except:
-                pass
-        except IndexError:
-            pass
 
-        shortest_path = [path[0]]
-        current_node = path[0]
-        while current_node != path[len(path)-1]:
-            idx = []
-            for to_compare in current_node.connections:
-                if to_compare[0] in path:
-                    idx.append(path.index(to_compare[0]))
-            current_node = path[max(idx)]
-            shortest_path.append(current_node)
-        
-        return shortest_path, result
+    def BFS(self):
+        pass
+
 
     def show(self, filename='graph'):
 

@@ -14,7 +14,7 @@ class GUI:
 
         running = True
         points = []
-        points_to_draw = None
+        #points_to_draw = None
         taken = False
         while running:
             for event in pygame.event.get():
@@ -27,11 +27,12 @@ class GUI:
                 if len(points) == 2 and not taken:
                     poinst_to_draw = self.solver.solve(points[0], points[1])
                     taken = True
+                    print(poinst_to_draw)
             
             self.screen.blit(background, backgroundrect)
-            if taken:
-                for point in poinst_to_draw:
-                    pygame.draw.circle(self.screen, (0,0,0), (int(point.value[0])-5, int(point.value[1])-5), 10)
+            #if taken:
+            #    for point in poinst_to_draw:
+            #        pygame.draw.circle(self.screen, (0,0,0), (int(point.value[0])-5, int(point.value[1])-5), 10)
             pygame.display.flip()
             
 

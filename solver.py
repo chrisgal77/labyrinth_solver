@@ -21,7 +21,7 @@ class LabyrinthSolver:
         closest = [None, 100000] # point, distance
         for connection in self.path:
             for point in connection:
-                distance = sqrt((point[0] - aim[0]) ** 2 + (point[1] - aim[1]))
+                distance = sqrt((point[0] - aim[0]) ** 2 + (point[1] - aim[1]) ** 2)
                 if distance <= closest[1]:
                     closest = [point, distance]
         return closest[0]
@@ -31,11 +31,10 @@ class LabyrinthSolver:
         self.path = self.pts.get_path()
         end = self.find_closest(aim)
         start = self.find_closest(start)
-        print(self.path)
-
         g = Graph.create_from_connections(self.path)
-        print(g.dijkstra_algorithm(Node(start),Node(end))[0])
-        return g.dijkstra_algorithm(Node(start),Node(end))[0]
+        print(f'Moves to the meta: {g.dijkstra_algorithm(Node(start),Node(end))}')
+        for node in g.vertices: print(type(node.value[0]), node)
+        return g.dijkstra_algorithm(Node(start),Node(end))
 
 if __debug__ and __name__ == "__main__":
     
