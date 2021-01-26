@@ -1,5 +1,6 @@
 import  graphviz
 import os
+from math import sqrt
 
 def in_collection(collection, arg):
     for i, element in enumerate(collection):
@@ -30,7 +31,7 @@ class Node:
         return False
 
     def __repr__(self):
-        return f'{self.value}'
+        return f'Node {self.value}'
 
 class Graph:
     def __init__(self):
@@ -122,8 +123,70 @@ class Graph:
         pass
 
 
-    def BFS(self):
-        pass
+    def A_algorithm(self, start_node, aim):
+
+        try:
+            self.start_node = self.find(start_node)
+        except AttributeError:
+            self.start_node = self.vertices[start_node]
+        try:
+            self.aim = self.find(aim)
+        except AttributeError:
+            self.aim = self.vertices[aim]
+        
+        self.to_evaluate = [[self.start_node, 0]]
+        self.evaluated = []
+
+        path = []
+
+        while True:
+
+            def lowest_f():
+                lowest = [None, 1000000]
+                for i, point in enumerate(self.to_evaluate):
+                    if lowest[1] > point[1]:
+                        lowest = [i, point[1]]
+                return self.to_evaluate[lowest[0]]
+
+            def in_collection(collection, arg):
+                for item in collection:
+                    if item[0] == arg:
+                        return True
+                return False
+
+            def exchange_to_evaluate(point, item):
+                for i, item in enumerate(self.to_evaluate):
+                    if point == item[0]:
+                        self.to_evaluate[i] = [point, item]
+                raise RuntimeError('Ops!')
+
+            def calculate_f(point):
+                return distance_to_target(point) + sqrt((int(point[0]) - int(self.current[0].value[0])) ** 2 + (int(point[1]) - int(self.current[0].value[1])) ** 2)
+
+            def distance_to_target(point):
+                return sqrt((int(point[0]) - int(self.aim.value[0])) ** 2 + (int(point[1]) - int(self.aim.value[1])) ** 2)
+
+            self.current = lowest_f()
+            self.to_evaluate.remove(self.current)
+            self.evaluated.append(self.current)
+            if self.current[0] == aim:
+                path.append(self.current[0])
+                break
+
+            for node in self.current[0].connections:
+                if not in_collection(self.evaluated, node[0]):
+                    if distance_to_target(self.current[0].value) > distance_to_target(node[0].value) or not in_collection(self.to_evaluate, node):
+                        path.append(self.current[0])
+                        if not in_collection(self.to_evaluate, node[0]):
+                            self.to_evaluate.append([node[0], calculate_f(node[0].value)])
+                        else:
+                            exchange_to_evaluate(node[0], calculate_f(node))
+            
+        output = []
+        for element in path:
+            if element not in output:
+                output.append(element)
+        return output
 
 
     def show(self, filename='graph'):
@@ -154,15 +217,22 @@ class Graph:
                 g.edge(current_node, self.find(input_[0]), int(input_[1]))
 
     @classmethod
-    def create_from_connections(cls, connections, default_value = 1):
+    def create_from_connections(cls, connections, distances=False, default_value = 1):
         g = cls()
-        
-        for pair in connections:
-            if Node(pair[0]) not in g.vertices:
-                g.vertices.append(Node(pair[0]))
-            if Node(pair[1]) not in g.vertices:
-                g.vertices.append(Node(pair[1]))
-            g.edge(g.find(pair[0]), g.find(pair[1]), default_value)
+        if distances:
+            for pair in connections:
+                if Node(pair[0]) not in g.vertices:
+                    g.vertices.append(Node(pair[0]))
+                if Node(pair[1]) not in g.vertices:
+                    g.vertices.append(Node(pair[1]))
+                g.edge(g.find(pair[0]), g.find(pair[1]), sqrt((pair[0][0] - pair[1][0]) ** 2 + (pair[0][1] - pair[1][1]) ** 2))
+        else:
+            for pair in connections:
+                if Node(pair[0]) not in g.vertices:
+                    g.vertices.append(Node(pair[0]))
+                if Node(pair[1]) not in g.vertices:
+                    g.vertices.append(Node(pair[1]))
+                g.edge(g.find(pair[0]), g.find(pair[1]), default_value)
         
         return g
 
@@ -178,7 +248,7 @@ if __debug__ and __name__ == "__main__":
     g.edge(Node('5'), Node('6'), 5)
     g.edge(Node('4'), Node('6'), 6)
 
-    assert in_collection(g.vertices, Node('1'))[0]
-    assert g.dijkstra_algorithm(Node('1'), Node('6'))[1] == 12
-
+    # assert in_collection(g.vertices, Node('1'))[0]
+    # assert g.dijkstra_algorithm(Node('1'), Node('6'))[1] == 12
+    a = g.A_algorithm(Node('1'), Node('6'))
     g.show('g')

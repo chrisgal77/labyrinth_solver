@@ -8,8 +8,8 @@ class GUI:
 
     def main(self):
 
-        self.solver.take_labyrinth('lab1.png', (980,480))
-        background = pygame.image.load('lab1.png')
+        self.solver.take_labyrinth('lab2.png', (980,480))
+        background = pygame.image.load('lab2.png')
         backgroundrect = background.get_rect()
 
         running = True
@@ -30,9 +30,9 @@ class GUI:
                     print(poinst_to_draw)
             
             self.screen.blit(background, backgroundrect)
-            #if taken:
-            #    for point in poinst_to_draw:
-            #        pygame.draw.circle(self.screen, (0,0,0), (int(point.value[0])-5, int(point.value[1])-5), 10)
+            if taken:
+               for point in poinst_to_draw:
+                   pygame.draw.circle(self.screen, (0,0,0), (int(point.value[0])-5, int(point.value[1])-5), 10)
             pygame.display.flip()
             
 
