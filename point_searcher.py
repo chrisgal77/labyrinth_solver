@@ -121,7 +121,6 @@ class PointsSearcher:
         self.current = [self.starting_point, set_possibilities(self.starting_point)]
         self.checkpoints = []
         checkpoint = deepcopy(self.current)
-        
         direction = 'left'
         checkpoint[1].remove(direction)
         self.checkpoints.append(checkpoint)

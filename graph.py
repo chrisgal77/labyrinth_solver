@@ -248,7 +248,6 @@ if __debug__ and __name__ == "__main__":
     g.edge(Node('5'), Node('6'), 5)
     g.edge(Node('4'), Node('6'), 6)
 
-    # assert in_collection(g.vertices, Node('1'))[0]
-    # assert g.dijkstra_algorithm(Node('1'), Node('6'))[1] == 12
-    a = g.A_algorithm(Node('1'), Node('6'))
+    assert in_collection(g.vertices, Node('1'))[0]
+    assert g.dijkstra_algorithm(Node('1'), Node('6')) == 12
     g.show('g')

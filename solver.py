@@ -25,11 +25,12 @@ class LabyrinthSolver:
     def solve(self, start, aim):
 
         self.path = self.pts.get_path()
+        print(self.path)
         end = self.find_closest(aim)
         start = self.find_closest(start)
         g = Graph.create_from_connections(self.path, distances=True)
-        a = g.A_algorithm(start, end)
-        return a
+        solution = g.A_algorithm(start, end)
+        return solution
 
 if __debug__ and __name__ == "__main__":
     
