@@ -2,9 +2,10 @@ import cv2
 import numpy as np
 import imutils
 import os 
-from copy import copy, deepcopy
+from copy import deepcopy, copy
 from random import randint, choice
 import time
+import pygame
 
 class PointsSearcher:
     def __init__(self):
@@ -52,17 +53,26 @@ class PointsSearcher:
                     return True
             return False
 
-        def search_point_with_move_possibility(collection, priority=None):
+        def search_point_with_move_possibility(collection, exclude=None):
             for i, point in enumerate(collection):
-                if point[1]:
+                if point[1] and point[1] != exclude:
                     return collection[i]
             raise RuntimeError('No such point')
 
         def exchange(collection, item):
             for i, element in enumerate(collection):
                 if item[0] == element[0]:
-                    collection[i] = item
-                    break
+                    new_checkpoint = [item[0]]
+                    directions = []
+                    for direction in item[1]:
+                        try:
+                            if direction in element[1]:
+                                directions.append(direction)
+                        except IndexError:
+                            pass
+                    new_checkpoint.append(directions)
+                    collection[i] = new_checkpoint
+        
 
         def set_point(direct):
             if direct == 'up' or direct == 'down':
@@ -125,19 +135,34 @@ class PointsSearcher:
         checkpoint[1].remove(direction)
         self.checkpoints.append(checkpoint)
         #TO_OPTIMIZE
+        #self.screen = pygame.display.set_mode((1000,600))
         while is_move_possibility():
-            
+            # background = pygame.image.load('/home/gal/Documents/Projects/labyrinth_solver/lab3.png')
+            # backgroundrect = background.get_rect()
+            # running = True
+            # while running:
+            #     for event in pygame.event.get():
+            #         if event.type == pygame.QUIT:
+            #             running = False
             if not self.current[1]:
-                self.connections.append([checkpoint[0], self.current[0]])
-                try:
-                    self.current = search_point_with_move_possibility(self.checkpoints)
-                except RuntimeError:
-                    break
-                checkpoint = self.current
+                    self.connections.append([checkpoint[0], self.current[0]])
+                    try:
+                        self.current = search_point_with_move_possibility(self.checkpoints, self.current)
+                    except RuntimeError:
+                        break
+                    checkpoint = deepcopy(self.current)
+                    direction = choice(checkpoint[1])
+                    try:
+                        checkpoint[1].remove(direction)
+                    except ValueError:
+                        pass
+                    if not in_collection(self.checkpoints, checkpoint):
+                        self.checkpoints.append(checkpoint)
+                    else:
+                        exchange(self.checkpoints, checkpoint)
                 
             elif len(self.current[1]) == 1 and direction in self.current[1]:
-                self.current = set_point(direction)
-                
+                    self.current = set_point(direction)
                 
             elif len(self.current[1]) == 1 and direction not in self.current[1]:
                 self.connections.append([checkpoint[0], self.current[0]])
@@ -168,19 +193,24 @@ class PointsSearcher:
                 self.current = set_point(direction)
                 
             else:
-                self.connections.append([checkpoint[0], self.current[0]])
-                checkpoint = deepcopy(self.current)
-                direction = choice(checkpoint[1])
-                try:
-                    checkpoint[1].remove(direction)
-                except ValueError:
-                    pass
-                if not in_collection(self.checkpoints, checkpoint):
-                    self.checkpoints.append(checkpoint)
-                else:
-                    exchange(self.checkpoints, checkpoint)
-                self.current = set_point(direction)
+                    self.connections.append([checkpoint[0], self.current[0]])
+                    checkpoint = deepcopy(self.current)
+                    direction = choice(checkpoint[1])
+                    try:
+                        checkpoint[1].remove(direction)
+                    except ValueError:
+                        pass
+                    if not in_collection(self.checkpoints, checkpoint):
+                        self.checkpoints.append(checkpoint)
+                    else:
+                        exchange(self.checkpoints, checkpoint)
+                    self.current = set_point(direction)
 
+                # time.sleep(0.2)
+                # self.screen.blit(background, backgroundrect)
+                # pygame.draw.circle(self.screen, (0,0,0), (int(self.current[0][0])-5, int(self.current[0][1])-5), 10)
+                # pygame.display.flip()
+        
         to_del = []
         for i, connection in enumerate(self.connections):
             if connection[0] == connection[1]:

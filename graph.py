@@ -157,7 +157,7 @@ class Graph:
             def exchange_to_evaluate(point, item):
                 for i, item in enumerate(self.to_evaluate):
                     if point == item[0]:
-                        self.to_evaluate[i] = [point, item]
+                        self.to_evaluate[i] = [point, item[1]]
                 raise RuntimeError('Ops!')
 
             def calculate_f(point):
@@ -170,23 +170,35 @@ class Graph:
             self.to_evaluate.remove(self.current)
             self.evaluated.append(self.current)
             if self.current[0] == aim:
-                path.append(self.current[0])
                 break
 
             for node in self.current[0].connections:
                 if not in_collection(self.evaluated, node[0]):
                     if distance_to_target(self.current[0].value) > distance_to_target(node[0].value) or not in_collection(self.to_evaluate, node):
-                        path.append(self.current[0])
+                        path.append((node[0], self.current[0]))
                         if not in_collection(self.to_evaluate, node[0]):
                             self.to_evaluate.append([node[0], calculate_f(node[0].value)])
                         else:
-                            exchange_to_evaluate(node[0], calculate_f(node))
+                            try:
+                                exchange_to_evaluate(node[0], calculate_f(node[0].value))
+                            except RuntimeError:
+                                pass
             
-        output = []
-        for element in path:
-            if element not in output:
-                output.append(element)
-        return output
+
+        shortest_path = []
+        def take_child(path, party):
+            for i, pair in enumerate(path):
+                if pair[0] == party:
+                    return path[i]
+        
+        shortest_path.append(path[len(path)-1][0])        
+        current = path[len(path)-1]
+        while current[1] != self.start_node:
+            shortest_path.append(current[1])
+            current = take_child(path, current[1])
+        shortest_path.append(current[1])
+
+        return shortest_path
 
 
     def show(self, filename='graph'):

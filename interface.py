@@ -8,8 +8,8 @@ class GUI:
 
     def main(self):
 
-        self.solver.take_labyrinth('lab2.png', (980,480))
-        background = pygame.image.load('lab2.png')
+        self.solver.take_labyrinth('lab3.png', (980,480))
+        background = pygame.image.load('/home/gal/Documents/Projects/labyrinth_solver/lab3.png')
         backgroundrect = background.get_rect()
 
         running = True
@@ -35,7 +35,6 @@ class GUI:
                    pygame.draw.circle(self.screen, (0,0,0), (int(point.value[0])-5, int(point.value[1])-5), 10)
             pygame.display.flip()
             
-
 if __debug__ and __name__ == "__main__":
 
     gui = GUI((1000,600))

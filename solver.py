@@ -25,7 +25,6 @@ class LabyrinthSolver:
     def solve(self, start, aim):
 
         self.path = self.pts.get_path()
-        print(self.path)
         end = self.find_closest(aim)
         start = self.find_closest(start)
         g = Graph.create_from_connections(self.path, distances=True)
