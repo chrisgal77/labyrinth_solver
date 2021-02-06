@@ -1,6 +1,7 @@
 import  graphviz
 import os
 from math import sqrt
+import numpy as np
 
 def in_collection(collection, arg):
     for i, element in enumerate(collection):
@@ -175,7 +176,8 @@ class Graph:
             for node in self.current[0].connections:
                 if not in_collection(self.evaluated, node[0]):
                     if distance_to_target(self.current[0].value) > distance_to_target(node[0].value) or not in_collection(self.to_evaluate, node):
-                        path.append((node[0], self.current[0]))
+                        if not in_collection(path, node[0]):
+                            path.append((node[0], self.current[0]))
                         if not in_collection(self.to_evaluate, node[0]):
                             self.to_evaluate.append([node[0], calculate_f(node[0].value)])
                         else:
@@ -185,20 +187,23 @@ class Graph:
                                 pass
             
 
-        shortest_path = []
-        def take_child(path, party):
-            for i, pair in enumerate(path):
-                if pair[0] == party:
-                    return path[i]
-        
-        shortest_path.append(path[len(path)-1][0])        
-        current = path[len(path)-1]
-        while current[1] != self.start_node:
-            shortest_path.append(current[1])
-            current = take_child(path, current[1])
-        shortest_path.append(current[1])
 
-        return shortest_path
+        shortest = []
+        self.current = self.aim
+        shortest.append(self.current)
+        for element in reversed(path):
+            try:
+                if element[0] == self.current[1]:
+                    shortest.append(element[0])
+                    self.current = element
+                
+            except:
+                if element[0] == self.current:
+                    shortest.append(element[0])
+                    self.current = element
+        shortest.append(self.current[1])
+
+        return shortest
 
 
     def show(self, filename='graph'):
