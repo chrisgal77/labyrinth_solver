@@ -27,7 +27,6 @@ class GUI:
                 if len(points) == 2 and not taken:
                     poinst_to_draw = self.solver.solve(points[0], points[1])
                     taken = True
-                    print(poinst_to_draw)
             
             self.screen.blit(background, backgroundrect)
             if taken:
