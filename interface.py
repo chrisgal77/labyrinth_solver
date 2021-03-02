@@ -9,7 +9,7 @@ class GUI:
     def main(self):
 
         self.solver.take_labyrinth('lab4.png', (980,480))
-        background = pygame.image.load('/home/gal/Documents/Projects/labyrinth_solver/lab4.png')
+        background = pygame.image.load('lab4.png')
         backgroundrect = background.get_rect()
 
         running = True

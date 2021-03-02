@@ -13,7 +13,7 @@ class LabyrinthSolver:
         self.pts.init(filename)
         self.pts.set_starting_point(point)
         
-    def find_closest(self, aim):
+    def _find_closest(self, aim):
         closest = [None, 100000] # point, distance
         for connection in self.path:
             for point in connection:
@@ -25,8 +25,8 @@ class LabyrinthSolver:
     def solve(self, start, aim):
 
         self.path = self.pts.get_path()
-        end = self.find_closest(aim)
-        start = self.find_closest(start)
+        end = self._find_closest(aim)
+        start = self._find_closest(start)
         g = Graph.create_from_connections(self.path, distances=True)
         solution = g.A_algorithm(start, end)
         return solution
